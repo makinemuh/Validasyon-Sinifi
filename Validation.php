@@ -8,7 +8,7 @@
  * @package Validation
  * @version 1.0
  */
- class Validation
+class Validation
 {
 	/**
 	 * Başlatıcıdan gelen alanları tutar
@@ -143,7 +143,7 @@
 	 */
 	public function email()
 	{
-		if (!filter_var($this->value, FILTER_VALIDATE_EMAIL)) {
+		if (!empty($this->value) && !filter_var($this->value, FILTER_VALIDATE_EMAIL)) {
 			$this->errors[$this->field] = sprintf(self::_EMAIL, $this->name);
 		}
 		return $this;
@@ -157,7 +157,7 @@
 	 */
 	public function url()
 	{
-		if (!filter_var($this->value, FILTER_VALIDATE_URL)) {
+		if (!empty($this->value) && !filter_var($this->value, FILTER_VALIDATE_URL)) {
 			$this->errors[$this->field] = sprintf(self::_URL, $this->name);
 		}
 		return $this;
@@ -190,7 +190,7 @@
 	 */
 	public function ip()
 	{
-		if(!filter_var($this->value, FILTER_VALIDATE_IP)) {
+		if(!empty($this->value) && !filter_var($this->value, FILTER_VALIDATE_IP)) {
 			$this->errors[$this->field] = sprintf(self::_IP, $this->name);
 		}
 		return $this;
@@ -236,7 +236,7 @@
 	 */
 	public function alpha()
 	{
-		if(!ctype_alpha($this->value)) {
+		if(!empty($this->value) && !ctype_alpha($this->value)) {
 			$this->errors[$this->field] = sprintf(self::_ALPHA, $this->name);
 		}
 		return $this;
@@ -250,7 +250,7 @@
 	 */
 	public function alphanumeric()
 	{
-		if(!ctype_alnum($this->value)) {
+		if(!empty($this->value) && !ctype_alnum($this->value)) {
 			$this->errors[$this->field] = sprintf(self::_ALPHANUM, $this->name);
 		}
 		return $this;
@@ -264,7 +264,7 @@
  	 */
 	public function numeric()
 	{
-		if(!is_numeric($this->value)) {
+		if(!empty($this->value) && !is_numeric($this->value)) {
 			$this->errors[$this->field] = sprintf(self::_INT, $this->name);
 		}
 		return $this;
@@ -278,7 +278,7 @@
  	*/
 	public function float()
 	{
-		if(!filter_var($this->value, FILTER_VALIDATE_FLOAT)) {
+		if(!empty($this->value) && !filter_var($this->value, FILTER_VALIDATE_FLOAT)) {
 			$this->errors[$this->field] = sprintf(self::_FLOAT, $this->name);
 		}
 		return $this;
@@ -295,7 +295,7 @@
 	{
 		$dateArr = date_parse($this->value);
 
-		if ($dateArr['error_count'] > 0) {
+		if (!empty($this->value) && $dateArr['error_count'] > 0) {
 			$this->errors[$this->field] = sprintf(self::_TIME, $this->name);
 		}
 		return $this;
