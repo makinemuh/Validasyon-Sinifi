@@ -1,0 +1,16 @@
+{
+  "name": "DemirPHP/Validation",
+  "description": "Formdan gelen verilerin güvenliğini sağlayan validasyon sınıfı",
+  "keywords": ["validaiton", "security", "güvenlik", "form"],
+  "homepage": "http://demirphp.com",
+  "authors": [
+    {
+      "name": "Yılmaz Demir",
+      "email": "demiriy@gmail.com",
+      "homepage": "http://yilmazdemir.com.tr",
+    }
+  ],
+  "require": {
+    "php": ">=5.4.0
+  }
+}
