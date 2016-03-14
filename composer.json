@@ -1,5 +1,5 @@
 {
-  "name": "DemirPHP/Validation",
+  "name": "demirphp/validation",
   "description": "Formdan gelen verilerin güvenliğini sağlayan validasyon sınıfı",
   "keywords": ["validaiton", "security", "güvenlik", "form"],
   "homepage": "http://demirphp.com",
