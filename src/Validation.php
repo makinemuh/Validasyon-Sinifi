@@ -1,11 +1,13 @@
 <?php
 
+namespace DemirPHP;
+
 /**
  * Validasyon Sınıfı
  * Validasyon sınıfı ile verileri doğrulayabilirsiniz
  * @author Yılmaz Demir <demiriy@gmail.com>
  * @link http://demirphp.com
- * @package Validation
+ * @package DemirPHP\Validation
  * @version 1.0
  */
 class Validation
@@ -48,18 +50,18 @@ class Validation
 	/**
 	 * Hata mesajları sabitleri
 	 */
-	const _EMPTY = 'Lütfen <strong>%s</strong> alanını doldurunuz';
-	const _EMAIL = '<strong>%s</strong> alanına geçerli bir e-posta adresi giriniz';
-	const _URL = '<strong>%s</strong> alanına geçerli bir URL giriniz';
-	const _SAME = '<strong>%s</strong> alanı diğeriyle uyuşmuyor, lütfen aynı değeri giriniz';
-	const _IP = '<strong>%s</strong> alanına geçerli bir IP adresi giriniz';
-	const _MIN = '<strong>%s</strong> alanı çok kısa, en az <strong>%s</strong> karakter girilebilir';
-	const _MAX = '<strong>%s</strong> alanı çok uzun, en fazla <strong>%s</strong> karakter girilebilir';
-	const _ALPHA = '<strong>%s</strong> alanına sadece harf girilebilir (Türkçe karakterler hariç)';
-	const _ALPHANUM = '<strong>%s</strong> alanına sadece harf ve sayı girilebilir (Türkçe karakterler hariç)';
-	const _INT = '<strong>%s</strong> alanına sadece rakam girilebilir (0-9)';
-	const _FLOAT = '<strong>%s</strong> alanına sadece kesirli/ondalık sayılar girilebilir';
-	const _TIME = '<strong>%s</strong> alanı geçerli bir tarih/zaman içermiyor';
+	const _EMPTY = 'Lütfen %s alanını doldurunuz';
+	const _EMAIL = '%s alanına geçerli bir e-posta adresi giriniz';
+	const _URL = '%s alanına geçerli bir URL giriniz';
+	const _SAME = '%s alanı diğeriyle uyuşmuyor, lütfen aynı değeri giriniz';
+	const _IP = '%s alanına geçerli bir IP adresi giriniz';
+	const _MIN = '%s alanı çok kısa, en az %s karakter girilebilir';
+	const _MAX = '%s alanı çok uzun, en fazla %s karakter girilebilir';
+	const _ALPHA = '%s alanına sadece harf girilebilir (Türkçe karakterler hariç)';
+	const _ALPHANUM = '%s alanına sadece harf ve sayı girilebilir (Türkçe karakterler hariç)';
+	const _INT = '%s alanına sadece rakam girilebilir (0-9)';
+	const _FLOAT = '%s alanına sadece kesirli/ondalık sayılar girilebilir';
+	const _TIME = '%s alanı geçerli bir tarih/zaman içermiyor';
 
 	/**
 	 * Sınıf başlatıcı

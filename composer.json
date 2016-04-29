@@ -3,6 +3,8 @@
   "description": "Formdan gelen verilerin güvenliğini sağlayan validasyon sınıfı",
   "keywords": ["validaiton", "security", "güvenlik", "form"],
   "homepage": "http://demirphp.com",
+  "type": "library",
+  "license": "MIT",
   "authors": [
     {
       "name": "Yılmaz Demir",
@@ -12,5 +14,10 @@
   ],
   "require": {
     "php": ">=5.4.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "DemirPHP\\": "src/DemirPHP/"
+    }
   }
 }
