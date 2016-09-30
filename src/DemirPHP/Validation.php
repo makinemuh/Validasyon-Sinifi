@@ -342,6 +342,16 @@ class Validation
 	}
 
 	/**
+	 * @param string $field
+	 * @param string $error
+	 * @return string
+	 */
+	public static function setError($field, $error)
+	{
+		return self::$errors[$field] = $error;
+	}
+
+	/**
 	 * @return array
 	 */
 	public static function getErrors()
