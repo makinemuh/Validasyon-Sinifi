@@ -84,7 +84,7 @@ class Validation
 	 */
 	private static function getField()
 	{
-		return self::hasField() ? self::$fields[self::$field] : FALSE;
+		return isset(self::$fields[self::$field]) ? self::$fields[self::$field] : FALSE;
 	}
 
 	/**
@@ -92,7 +92,7 @@ class Validation
 	 */
 	private static function hasField()
 	{
-		return isset(self::$fields[self::$field]);
+		return isset(self::$fields[self::$field]) && !empty(self::$fields[self::$field]);
 	}
 
 	/**
@@ -101,7 +101,7 @@ class Validation
 	 */
 	public static function required($message = FALSE)
 	{
-		if (!self::hasField()) {
+		if (!isset(self::$fields[self::$field])) {
 			self::$errors[self::$field] = sprintf(
 				$message ? $message : self::$messages['required'],
 				empty(self::$title) ? self::$field : self::$title
@@ -116,7 +116,7 @@ class Validation
 	 */
 	public static function empty($message = FALSE)
 	{
-		if (self::hasField() && empty(self::getField())) {
+		if (isset(self::$fields[self::$field]) && empty(self::getField())) {
 			self::$errors[self::$field] = sprintf(
 				$message ? $message : self::$messages['empty'],
 				empty(self::$title) ? self::$field : self::$title
