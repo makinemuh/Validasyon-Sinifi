@@ -114,7 +114,7 @@ class Validation
 	 * @param mixed $message
 	 * @return void
 	 */
-	public static function empty($message = FALSE)
+	public static function notEmpty($message = FALSE)
 	{
 		if (isset(self::$fields[self::$field]) && empty(self::getField())) {
 			self::$errors[self::$field] = sprintf(
