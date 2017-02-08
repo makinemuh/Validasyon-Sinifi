@@ -2,356 +2,448 @@
 
 namespace DemirPHP;
 
-/**
- * Validasyon Sınıfı
- * Validasyon sınıfı ile verileri doğrulayabilirsiniz
- * @author Yılmaz Demir <demiriy@gmail.com>
- * @link http://demirphp.com
- * @package DemirPHP\Validation
- * @version 1.0
- */
 class Validation
 {
 	/**
-	 * Başlatıcıdan gelen alanları tutar
 	 * @var array
-	 * @access private
 	 */
-	private $fields = [];
+	public static $rules = [];
 
 	/**
-	 * Hata mesajlarını tutar
 	 * @var array
-	 * @access private
 	 */
-	private $errors = [];
+	public static $data = [];
 
 	/**
-	 * Anahtar alanını tutar
-	 * @var string
-	 * @access private
+	 * @var array
 	 */
-	private $field;
+	public static $errors = [];
 
 	/**
-	 * Anahtarın değerini tutar
-	 * @var string
-	 * @access private
+	 * @var array
 	 */
-	private $value;
+	public static $names = [];
 
 	/**
-	 * Anahtarın adını tutar
-	 * @var string
-	 * @access private
+	 * @var array
 	 */
-	private $name;
+	public static $messages = [
+		'required' => '%s alanı gereklidir',
+		'notNull' => '%s alanı boş bırakılamaz',
+		'max' => '%s alanının uzunluğu en fazla %s karakter olabilir',
+		'min' => '%s alanının uzunluğu en az %s karakter olabilir',
+		'same' => '%s alanı %s alanıyla aynı olmalıdır',
+		'time' => '%s alanı geçerli bir tarih/saat içermiyor',
+		'email' => '%s alanı geçerli bir e-posta adresi değil',
+		'alphanumeric' => '%s alanı yalnızca harf ve rakam içermelidir',
+		'alpha' => '%s alanı yalnızca harf içermelidir',
+		'numeric' => '%s alanı yalnızca nümerik olabilir',
+		'ip' => '%s alanı geçerli bir IP adresi içermiyor',
+		'upper' => '%s alanı yalnızca büyük harfler içerebilir',
+		'lower' => '%s alanı yalnızca küçük harfler içerebilir'
+	];
 
 	/**
-	 * Hata mesajları sabitleri
+	 * Kuralları belirler
+	 * @param array $rules
+	 * @return null
 	 */
-	const _EMPTY = 'Lütfen %s alanını doldurunuz';
-	const _EMAIL = '%s alanına geçerli bir e-posta adresi giriniz';
-	const _URL = '%s alanına geçerli bir URL giriniz';
-	const _SAME = '%s alanı diğeriyle uyuşmuyor, lütfen aynı değeri giriniz';
-	const _IP = '%s alanına geçerli bir IP adresi giriniz';
-	const _MIN = '%s alanı çok kısa, en az %s karakter girilebilir';
-	const _MAX = '%s alanı çok uzun, en fazla %s karakter girilebilir';
-	const _ALPHA = '%s alanına sadece harf girilebilir (Türkçe karakterler hariç)';
-	const _ALPHANUM = '%s alanına sadece harf ve sayı girilebilir (Türkçe karakterler hariç)';
-	const _INT = '%s alanına sadece rakam girilebilir (0-9)';
-	const _FLOAT = '%s alanına sadece kesirli/ondalık sayılar girilebilir';
-	const _TIME = '%s alanı geçerli bir tarih/zaman içermiyor';
-
-	/**
-	 * Sınıf başlatıcı
-	 * @param array [$fields]
-	 * @access public
-	 * @example (new Validation($_POST))
-	 */
-	public function __construct(array $fields = [])
+	public static function setRules(array $rules)
 	{
-		if (!empty($fields)) $this->fields = $fields;
-	}
-
-	/**
-	 * Validasyondan geçirilecek alanları belirler
-	 * @param array [$fields]
-	 * @access public
-	 * @example $obj->fields($_POST);
-	 */
-	public function fields(array $fields)
-	{
-		$this->fields = $fields;
-		return $this;
-	}
-
-	/**
-	 * Alan belirteci
-	 * @param string [$field]
-	 * @param string [$name]
-	 * @access public
-	 * @example $obj->field('name', 'İsim Soyisim')
-	 */
-	public function field($field, $name = null)
-	{
-		if ($this->checkField($field)) {
-			$this->field = $field;
-			$this->value = $this->fields[$field];
-			$this->name = $name;
-		} else {
-			$this->errors['_invalidField'] = "Validasyondan geçecek veriler arasında <b>{$name}</b> alanı yok";
-			$this->field = $field;
-			$this->value = null;
-			$this->name = $name;
+		foreach ($rules as $field => $rule) {
+			self::$rules[$field] = self::separateRules($rule);
 		}
-
-		if (is_null($name)) throw new \Exception('Validasyon alanının ismini giriniz: ' . $field);
-
-		return $this;
 	}
 
 	/**
-	 * Validasyonun geçerliliğini döndürür
-	 * @return boolean
-	 * @access public
-	 * @example $obj->valid()
+	 * İsimleri belirler
+	 * @return null
 	 */
-	public function valid()
+	private static function setNames()
 	{
-		if (empty($this->errors)) return true;
-		return false;
-	}
-
-	/**
-	 * Alanın boş olup olmadığnı kontrol eder
-	 * @return void
-	 * @access public
-	 * @example $obj->field('name', 'Ad')->required()
-	 */
-	public function required()
-	{
-		if (empty($this->value)) {
-			$this->errors[$this->field] = sprintf(self::_EMPTY, $this->name);
-		}
-		return $this;
-	}
-
-	/**
-	 * E-posta adresi kontrol eder
-	 * @return void
-	 * @access public
-	 * @example $obj->field('email', 'E-posta')->isEmail()
-	 */
-	public function email()
-	{
-		if (!empty($this->value) && !filter_var($this->value, FILTER_VALIDATE_EMAIL)) {
-			$this->errors[$this->field] = sprintf(self::_EMAIL, $this->name);
-		}
-		return $this;
-	}
-
-	/**
-	 * URL kontrol eder
-	 * @return void
-	 * @access public
-	 * @example $obj->field('url', 'Web sitesi')->url()
-	 */
-	public function url()
-	{
-		if (!empty($this->value) && !filter_var($this->value, FILTER_VALIDATE_URL)) {
-			$this->errors[$this->field] = sprintf(self::_URL, $this->name);
-		}
-		return $this;
-	}
-
-	/**
-	 * Eşleştirme yapar
-	 * @param string [$filed]
-	 * @return void
-	 * @access public
-	 * @example $obj->field('pass', 'Şifre')->same('repass')
-	 */
-	public function same($field)
-	{
-		if ($this->checkField($field)) {
-			if ($this->value != $this->fields[$field]) {
-				$this->errors[$this->field] = sprintf(self::_SAME, $this->name);
+		foreach (self::$rules as $field => $rules) {
+			if (in_array('name', $rules['rules'])) {
+				self::$names[$field] = $rules['options']['name'];
 			}
+		}
+	}
+
+	/**
+	 * Kuralları dizgeden diziye ayrıştırır
+	 * @param string $rules
+	 * @return array
+	 */
+	private static function separateRules($rules)
+	{
+		$rules = explode('|', $rules);
+		$arrayRules = [];
+
+		foreach ($rules as $key => $rule) {
+			$option = explode(':', $rule);
+			if (isset($option[1])) {
+				$arrayRules['rules'][] = $option[0];
+				$arrayRules['options'][$option[0]] = $option[1];
+			} else {
+				$arrayRules['rules'][] = $option[0];
+			}
+		}
+		return $arrayRules;
+	}
+
+	/**
+	 * Validasyondan geçecek veriyi belirler
+	 * @param array $data
+	 * @return array
+	 */
+	public static function setData(array $data)
+	{
+		return self::$data = $data;
+	}
+
+	/**
+	 * Validasyon sağlar
+	 * @param array $rules
+	 * @param array $data
+	 * @return void
+	 */
+	public static function validate(array $rules, array $data)
+	{
+		self::setRules($rules);
+		self::setData($data);
+		return self::isValid();
+	}
+
+	/**
+	 * Gerekli alanı kontrol eder
+	 * @param string $field
+	 * @return boolean
+	 */
+	private static function required($field)
+	{
+		if (isset(self::$data[$field])) {
+			return true;
 		} else {
-			throw new \Exception('Validasyondan geçirilmek istenen alan dizi içerisinde yok: ' . $field);
+			self::setError($field, 'required');
+			return false;
 		}
-		return $this;
 	}
 
 	/**
-	 * IP adresi kontrol eder
-	 * @return void
-	 * @access public
-	 * @example $obj->field('ip', 'IP Adresi')->ip()
+	 * Alanın boş olup olmadığını kontrol eder
+	 * @param string $field
+	 * @return boolean
 	 */
-	public function ip()
+	private static function notNull($field)
 	{
-		if(!empty($this->value) && !filter_var($this->value, FILTER_VALIDATE_IP)) {
-			$this->errors[$this->field] = sprintf(self::_IP, $this->name);
+		if (isset(self::$data[$field]) && !empty(self::$data[$field])) {
+			return true;
+		} else {
+			self::setError($field, 'notNull');
+			return false;
 		}
-		return $this;
 	}
 
 	/**
-	 * En az girilebilecek karakteri belirler
-	 * @param integer|null [$legth]
-	 * @return void
-	 * @access public
-	 * @example $obj->field('username', 'Kullanıcı Adı')->min(5)
+	 * Alanın en fazla içereceği karakteri kontrol eder
+	 * @param string $field
+	 * @param string $option
+	 * @return boolean
 	 */
-	public function min($length = null)
+	private static function max($field, $option)
 	{
-		if (is_null($length)) $length = 5;
-		if (strlen($this->value) < $length) {
-			$this->errors[$this->field] = sprintf(self::_MIN, $this->name, $length);
+		if (isset(self::$data[$field]) && mb_strlen(self::$data[$field]) <= $option) {
+			return true;
+		} else {
+			self::setError($field, 'max', $option);
+			return false;
 		}
-		return $this;
 	}
 
 	/**
-	 * En fazla girilebilecek karakteri belirler
-	 * @param integer|null [$legth]
-	 * @return void
-	 * @access public
-	 * @example $obj->field('username', 'Kullanıcı Adı')->max(15)
+	 * Alanın en az içereceği karakteri kontrol eder
+	 * @param string $field
+	 * @param string $option
+	 * @return boolean
 	 */
-	public function max($length = null)
+	private static function min($field, $option)
 	{
-		if (is_null($length)) $length = 255;
-		if (strlen($this->value) > $length) {
-			$this->errors[$this->field] = sprintf(self::_MAX, $this->name, $length);
+		if (isset(self::$data[$field]) && mb_strlen(self::$data[$field]) >= $option) {
+			return true;
+		} else {
+			self::setError($field, 'min', $option);
+			return false;
 		}
-		return $this;
 	}
 
 	/**
-	 * Girdi sadece harflerden mi oluşuyor, kontrol eder
-	 * @return void
-	 * @access public
-	 * @example $obj->field('username', 'Kullanıcı Adı')->alpha()
+	 * Alanın diğer bir alanla aynı mı kontrol eder
+	 * @param string $field
+	 * @param string $option
+	 * @return boolean
 	 */
-	public function alpha()
+	private static function same($field, $option)
 	{
-		if(!empty($this->value) && !ctype_alpha($this->value)) {
-			$this->errors[$this->field] = sprintf(self::_ALPHA, $this->name);
+		if (isset(self::$data[$field]) && isset(self::$data[$option]) && self::$data[$field] === self::$data[$option]) {
+			return true;
+		} else {
+			self::setError($field, 'same', $option);
+			return false;
 		}
-		return $this;
 	}
 
 	/**
-	 * Girdi rakam ve nümerik karakterlerden mi oluşuyor kontrol eder
-	 * @return void
-	 * @access public
-	 * @example $obj->field('username', 'Kullanıcı Adı')->alphanumeric()
+	 * Geçerli bir zaman dizgesi olup olmadığını kontrol eder
+	 * @param string $field
+	 * @return boolean
 	 */
-	public function alphanumeric()
+	private static function time($field)
 	{
-		if(!empty($this->value) && !ctype_alnum($this->value)) {
-			$this->errors[$this->field] = sprintf(self::_ALPHANUM, $this->name);
+		$dateArr = date_parse(self::$data[$field]);
+		if (isset(self::$data[$field]) && $dateArr['error_count'] <= 0) {
+			return true;
+		} else {
+			self::setError($field, 'time');
+			return false;
 		}
-		return $this;
 	}
 
 	/**
-	 * Girdi sayı mı kontrol eder
-	 * @return void
-	 * @access public
-	 * @example $obj->field('age', 'Yaş')->numeric()
- 	 */
-	public function numeric()
-	{
-		if(!empty($this->value) && !is_numeric($this->value)) {
-			$this->errors[$this->field] = sprintf(self::_INT, $this->name);
-		}
-		return $this;
-	}
-
-	/**
-	 * Girdi kesirli/ondalık sayı mı kontrol eder
-	 * @return void
-	 * @access public
-	 * @example $obj->field('cost', 'Tutar')->float()
- 	*/
-	public function float()
-	{
-		if(!empty($this->value) && !filter_var($this->value, FILTER_VALIDATE_FLOAT)) {
-			$this->errors[$this->field] = sprintf(self::_FLOAT, $this->name);
-		}
-		return $this;
-	}
-
-	/**
-	 * Girdi geçerli bir tarih/zaman mı bunu doğrular
-	 * Sadece tarih veya sadece saat de doğrulayabilir
-	 * @return void
-	 * @access public
-	 * @example $obj->field('created', 'Tarih')->time()
+	 * Geçerli bir e-posta adresi olup olmadığını kontrol eder
+	 * @param string $field
+	 * @return boolean
 	 */
-	public function time()
+	private static function email($field)
 	{
-		$dateArr = date_parse($this->value);
-
-		if (!empty($this->value) && $dateArr['error_count'] > 0) {
-			$this->errors[$this->field] = sprintf(self::_TIME, $this->name);
+		if (isset(self::$data[$field]) && filter_var(self::$data[$field], FILTER_VALIDATE_EMAIL)) {
+			return true;
+		} else {
+			self::setError($field, 'email');
+			return false;
 		}
-		return $this;
+	}
+
+	/**
+	 * Geçerli bir alfanumerik dizgesi olup olmadığını kontrol eder
+	 * @param string $field
+	 * @return boolean
+	 */
+	private static function alphanumeric($field)
+	{
+		if (isset(self::$data[$field]) && ctype_alnum(self::$data[$field])) {
+			return true;
+		} else {
+			self::setError($field, 'alphanumeric');
+			return false;
+		}
+	}
+
+	/**
+	 * Geçerli bir alfa dizgesi olup olmadığını kontrol eder
+	 * @param string $field
+	 * @return boolean
+	 */
+	private static function alpha($field)
+	{
+		if (isset(self::$data[$field]) && ctype_alpha(self::$data[$field])) {
+			return true;
+		} else {
+			self::setError($field, 'alpha');
+			return false;
+		}
+	}
+
+	/**
+	 * Değerin nümerik olup olmadığını kontrol eder
+	 * @param string $field
+	 * @return boolean
+	 */
+	private static function numeric($field)
+	{
+		if (isset(self::$data[$field]) && is_numeric(self::$data[$field])) {
+			return true;
+		} else {
+			self::setError($field, 'numeric');
+			return false;
+		}
+	}
+
+	/**
+	 * Geçerli bir IP adresi olup olmadığını kontrol eder
+	 * @param string $field
+	 * @return boolean
+	 */
+	private static function ip($field)
+	{
+		if (isset(self::$data[$field]) && filter_var(self::$data[$field], FILTER_VALIDATE_IP)) {
+			return true;
+		} else {
+			self::setError($field, 'ip');
+			return false;
+		}
+	}
+
+	/**
+	 * Geçerli bir zaman kesirli sayı olup olmadığını kontrol eder
+	 * @param string $field
+	 * @return boolean
+	 */
+	private static function float($field)
+	{
+		if (isset(self::$data[$field]) && filter_var(self::$data[$field], FILTER_VALIDATE_FLOAT)) {
+			return true;
+		} else {
+			self::setError($field, 'float');
+			return false;
+		}
+	}
+
+	/**
+	 * Geçerli bir url dizgesi olup olmadığını kontrol eder
+	 * @param string $field
+	 * @return boolean
+	 */
+	private static function url($field)
+	{
+		if (isset(self::$data[$field]) && filter_var(self::$data[$field], FILTER_VALIDATE_URL)) {
+			return true;
+		} else {
+			self::setError($field, 'url');
+			return false;
+		}
+	}
+
+	/**
+	 * Dizgenin küçük harfli olup olmadığını kontrol eder
+	 * @param string $field
+	 * @return boolean
+	 */
+	private static function lower($field)
+	{
+		if (isset(self::$data[$field]) && ctype_lower(self::$data[$field])) {
+			return true;
+		} else {
+			self::setError($field, 'lower');
+			return false;
+		}
+	}
+
+	/**
+	 * Dizgenin küçük harfli olup olmadığını kontrol eder
+	 * @param string $field
+	 * @return boolean
+	 */
+	private static function upper($field)
+	{
+		if (isset(self::$data[$field]) && ctype_upper(self::$data[$field])) {
+			return true;
+		} else {
+			self::setError($field, 'upper');
+			return false;
+		}
+	}
+
+	/**
+	 * Validasyon yapar
+	 * @return boolean
+	 */
+	public static function isValid()
+	{
+		self::setNames();
+		foreach (self::$rules as $field => $rule) {
+			$rules = $rule['rules'];
+			$options = @$rule['options'];
+
+			foreach ($rules as $_rule) {
+				if (method_exists(new self, $_rule)) {
+					if (isset($options[$_rule])) {
+						self::$_rule($field, $options[$_rule]);
+					} else {
+						self::$_rule($field);
+					}
+				}
+			}
+		}
+		return empty(self::$errors);
+	}
+
+	/**
+	 * Validasyon yapar
+	 * @param string $field
+	 * @param string $rule
+	 * @param string $option
+	 * @return null
+	 */
+	private static function setError($field, $rule, $option = null)
+	{
+		if (isset(self::$names[$field])) {
+			self::$errors[$field] = sprintf(
+				self::$messages[$rule], 
+				self::$names[$field], 
+				isset(self::$names[$option]) ? self::$names[$option] : $option
+			);
+		} else {
+			self::$errors[$field] = sprintf(
+				self::$messages[$rule], 
+				$field, 
+				isset(self::$names[$option]) ? self::$names[$option] : $option
+			);
+		}
 	}
 
 	/**
 	 * Hataları döndürür
 	 * @return array
-	 * @access public
-	 * @example print_r($obj->getErrors())
 	 */
-	public function getErrors()
+	public static function getErrors()
 	{
-		return $this->errors;
+		return self::$errors;
 	}
 
 	/**
-	 * Alan için hata varsa döndürür
-	 * @param string [$field]
-	 * @return string|boolean
-	 * @access public
-	 * @example $obj->getError('name')
+	 * Hataları döndürür
+	 * @return string
 	 */
-	public function getError($field)
+	public static function getErrorsAsString()
 	{
-		if ($this->checkField($field)) {
-			return isset($this->errors[$field]) ? $this->errors[$field] : false;
+		return implode('<br>', self::$errors);
+	}
+
+	/**
+	 * Özel hata ekler
+	 * @param string $error
+	 * @param string $field
+	 * @return null
+	 */
+	public static function addError($error, $field = null)
+	{
+		if (is_null($field)) {
+			self::$errors[] = $error;
+		} else {
+			self::$errors[$field] = $error;
 		}
-		return false;
 	}
 
 	/**
-	 * Hataları string olarak yazdırır
-	 * @return string [$errors]
-	 * @access public
-	 * @example echo $obj->getErrorsAsString
+	 * Hızlı validasyon
+	 * @param mixed $data
+	 * @param string $rule
+	 * @return void
 	 */
-	public function getErrorsAsString()
+	public static function check($data, $rule)
 	{
-		$errors = null;
-		foreach ($this->errors as $error) {
-			$errors .= $error . "<br>\n";
+		self::$data['_data'] = $data;
+		$rule = explode(':', $rule);
+		$option = isset($rule[1]) ? $rule[1] : false;
+		$rule = $rule[0];
+
+		if (method_exists(new self, $rule)) {
+			if ($option !== false) {
+				return self::$rule('_data', $option);
+			} else {
+				return self::$rule('_data');
+			}
+		} else {
+			throw new \Exception('Böyle bir kural tanımlı değil: ' . $rule);
 		}
-		return $errors;
-	}
-
-	/**
-	 * Alanın olup olmadığını kontrol eder
-	 * @param string [$key]
-	 * @return boolean
-	 * @access private
-	 */
-	private function checkField($key)
-	{
-		return array_key_exists($key, $this->fields);
 	}
 }
